@@ -21,25 +21,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyWeatherAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    WeatherScreen(isDarkMode = true)
+                    WeatherScreen(
+                        isDarkMode = true,
+                        onModeChange = {},
+                        weatherState = "sunny"
+                    )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyWeatherAppTheme {
-        Greeting("Android")
     }
 }
