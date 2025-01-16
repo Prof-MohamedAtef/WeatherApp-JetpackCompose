@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,13 +39,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mo.ed.weather.R
+import mo.ed.weather.presentation.viewmodel.WeatherViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherScreen(isDarkMode: Boolean,
-                  onModeChange: (Boolean) -> Unit,
-                  weatherState: String = "cloudy") {
+fun WeatherScreen(
+    viewModel: WeatherViewModel,
+    onModeChange: (Boolean) -> Unit,
+    isDarkMode: Boolean,
+) {
+
+
+    val weatherState by viewModel.weatherState.observeAsState()
+    val errorState by viewModel.errorState.observeAsState()
+
     var isDarkMode by remember { mutableStateOf(true) }
 
     val backgroundColor = if (isDarkMode) Color(0xFF111111) else Color(0xFFFFFFFF)
@@ -53,12 +62,17 @@ fun WeatherScreen(isDarkMode: Boolean,
     val textColor =
         if (isDarkMode) Color.White.copy(alpha = 0.6f) else Color.Black.copy(alpha = 0.6f)
 
-    val weatherImageRes = when (weatherState.lowercase()) {
-        "sunny" -> R.drawable.ic_sunny // Replace with your sunny icon resource
-        "cloudy" -> R.drawable.ic_cloudy // Replace with your cloudy icon resource
-        "rainy" -> R.drawable.ic_rainy // Replace with your rainy icon resource
-        else -> R.drawable.ic_unknown // Fallback for unknown weather state
+    var state = ""
+    val weatherImageRes = weatherState?.let {
+        state =  it.weather.get(0).main
+        when (state.lowercase()) {
+            "Clear" -> R.drawable.ic_sunny // Replace with your sunny icon resource
+            "Clouds" -> R.drawable.ic_cloudy // Replace with your cloudy icon resource
+            "Rain" -> R.drawable.ic_rainy // Replace with your rainy icon resource
+            else -> R.drawable.ic_unknown // Fallback for unknown weather state
+        }
     }
+
 
     Box(
         modifier = Modifier
@@ -66,7 +80,9 @@ fun WeatherScreen(isDarkMode: Boolean,
             .background(backgroundColor)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(top = 16.dp, end = 16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 16.dp, end = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -117,7 +133,10 @@ fun WeatherScreen(isDarkMode: Boolean,
                     modifier = Modifier
                         .weight(0.55f) // Maintained width (55%)
                         .height(50.dp) // Reduced height
-                        .background(searchBoxColor, shape = RoundedCornerShape(30.dp)) // Rounded corners with smaller radius
+                        .background(
+                            searchBoxColor,
+                            shape = RoundedCornerShape(30.dp)
+                        ) // Rounded corners with smaller radius
                         .padding(horizontal = 12.dp), // Reduced padding
                     contentAlignment = Alignment.CenterStart
                 ) {
@@ -175,7 +194,9 @@ fun WeatherScreen(isDarkMode: Boolean,
                         .wrapContentHeight() // Ensures the box adjusts according to content
 //                        .verticalScroll(rememberScrollState()) // Enables scrolling for the weather box
                 ) {
-                    WeatherBox(isDarkMode = isDarkMode, weatherImageRes, weatherState)
+                    if (weatherImageRes != null) {
+                        WeatherBox(isDarkMode = isDarkMode, weatherImageRes, state)
+                    }
                 }
             }
 
@@ -185,11 +206,9 @@ fun WeatherScreen(isDarkMode: Boolean,
 }
 
 
-
-
 @Preview(showBackground = true, widthDp = 800, heightDp = 400)
 @Composable
 fun LandscapeLayoutPreview() {
-    WeatherScreen(isDarkMode = true, weatherState = "rainy", onModeChange = {})
+//    WeatherScreen(isDarkMode = true, weatherState = "rainy", onModeChange = {})
 }
 
