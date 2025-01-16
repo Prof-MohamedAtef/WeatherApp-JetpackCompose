@@ -1,9 +1,10 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.android.application)  // Android application plugin
+    alias(libs.plugins.kotlin.android)        // Kotlin Android plugin
+//    alias(libs.plugins.kotlin.plugin.compose) // Kotlin Compose plugin
+    kotlin("kapt")                           // Enable KAPT for annotation processing
     alias(libs.plugins.hilt.android)
-    kotlin("kapt")
+
 }
 
 android {
@@ -30,11 +31,14 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_19
+        targetCompatibility = JavaVersion.VERSION_19
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14"  // The version of the compiler extension for Kotlin 1.8.10
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "19"
     }
     buildFeatures {
         compose = true
@@ -43,6 +47,8 @@ android {
 
 dependencies {
 //    implementation(libs.coil.svg)
+    implementation(libs.java.poet)
+    implementation(libs.androidx.compose.runtime)
     implementation(libs.coil.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
