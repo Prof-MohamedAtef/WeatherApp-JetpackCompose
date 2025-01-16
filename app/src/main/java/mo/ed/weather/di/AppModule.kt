@@ -4,6 +4,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import mo.ed.weather.data.remote.WeatherApiService
+import mo.ed.weather.data.repository.WeatherRepository
+import mo.ed.weather.domain.repository.WeatherRepositoryInterface
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
