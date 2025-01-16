@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import mo.ed.weather.presentation.ui.view.MainActivity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
