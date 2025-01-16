@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,11 +30,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,8 +42,10 @@ import mo.ed.weather.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherScreen(isDarkMode: Boolean, weatherState: String = "cloudy") {
-    var isDarkMode by remember { mutableStateOf(false) }
+fun WeatherScreen(isDarkMode: Boolean,
+                  onModeChange: (Boolean) -> Unit,
+                  weatherState: String = "cloudy") {
+    var isDarkMode by remember { mutableStateOf(true) }
 
     val backgroundColor = if (isDarkMode) Color(0xFF111111) else Color(0xFFFFFFFF)
     val toggleButtonText = if (isDarkMode) "Light Mode" else "Dark Mode"
@@ -66,7 +66,7 @@ fun WeatherScreen(isDarkMode: Boolean, weatherState: String = "cloudy") {
             .background(backgroundColor)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(top = 16.dp, end = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -74,73 +74,71 @@ fun WeatherScreen(isDarkMode: Boolean, weatherState: String = "cloudy") {
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(16.dp),
+                    .padding(horizontal = 8.dp, vertical = 16.dp), // Reduced padding
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically // Vertically centered content
             ) {
                 // Toggle Button
                 Column(
                     modifier = Modifier
-                        .weight(0.1f)  // 15% width
+                        .weight(0.15f) // Reduced width (20% instead of 15%)
                         .wrapContentHeight(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(width = 100.dp, height = 38.dp)
+                            .size(width = 80.dp, height = 34.dp) // Reduced size
                             .background(Color(0xFFD9D9D9), shape = CircleShape)
-                            .padding(4.dp),
+                            .padding(4.dp)
+                            .testTag(if (isDarkMode) "Dark" else "Light"), // Add test tag here
                         contentAlignment = if (isDarkMode) Alignment.CenterEnd else Alignment.CenterStart
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(30.dp)
+                                .size(26.dp) // Smaller size for the toggle
                                 .background(Color(0xFF111111), shape = CircleShape)
                                 .clickable {
-                                    isDarkMode = !isDarkMode
-                                })
+                                    onModeChange(!isDarkMode) // Update state via callback
+                                }
+                        )
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(4.dp)) // Reduced spacing
                     Text(
                         text = toggleButtonText,
                         color = if (isDarkMode) Color.White else Color.Black,
-                        fontSize = 14.sp,
+                        fontSize = 12.sp, // Smaller font size
                         textAlign = TextAlign.Center
                     )
                 }
 
-                Spacer(modifier = Modifier.width(5.dp)) // Reduced width to make space for LocationBox
-
                 // Search Box
                 Box(
                     modifier = Modifier
-                        .weight(0.55f)  // 60% width
-                        .wrapContentWidth()
-                        .height(62.dp)
-                        .background(searchBoxColor, shape = RoundedCornerShape(40.dp))
-                        .padding(horizontal = 16.dp),
+                        .weight(0.55f) // Maintained width (55%)
+                        .height(50.dp) // Reduced height
+                        .background(searchBoxColor, shape = RoundedCornerShape(30.dp)) // Rounded corners with smaller radius
+                        .padding(horizontal = 12.dp), // Reduced padding
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-
                         Icon(
                             painter = painterResource(id = R.drawable.ic_search),
                             contentDescription = "Search Icon",
                             tint = textColor,
-                            modifier = Modifier.size(40.dp)
+                            modifier = Modifier.size(28.dp) // Smaller icon size
                         )
 
                         Text(
                             text = "Search for your preferred city...",
                             color = textColor,
                             modifier = Modifier
-                                .padding(start = 30.dp)
-                                .height(28.dp),
+                                .padding(start = 16.dp) // Adjusted padding
+                                .height(24.dp),
                             style = TextStyle(
-                                fontSize = 18.sp,
+                                fontSize = 14.sp, // Smaller font size
                                 fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
                                 textAlign = TextAlign.Start,
                             )
@@ -148,13 +146,12 @@ fun WeatherScreen(isDarkMode: Boolean, weatherState: String = "cloudy") {
                     }
                 }
 
-                Spacer(modifier = Modifier.width(8.dp)) // Reduced width for spacing
-
+                Spacer(modifier = Modifier.width(20.dp))
                 // Location Box (Newly added inside the same row)
                 Column(
                     modifier = Modifier
-                        .weight(0.25f)  // 20% width
-                        .height(62.dp),
+                        .weight(0.25f) // 25% width
+                        .height(50.dp), // Reduced height to match other components
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -168,11 +165,18 @@ fun WeatherScreen(isDarkMode: Boolean, weatherState: String = "cloudy") {
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 CityTimeCard(isDarkMode = isDarkMode)
                 Spacer(modifier = Modifier.width(15.dp))
-                WeatherBox(isDarkMode = isDarkMode, weatherImageRes, weatherState)
-                Spacer(modifier = Modifier.width(25.dp))
+                // WeatherBox with scrolling support
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight() // Ensures the box adjusts according to content
+//                        .verticalScroll(rememberScrollState()) // Enables scrolling for the weather box
+                ) {
+                    WeatherBox(isDarkMode = isDarkMode, weatherImageRes, weatherState)
+                }
             }
 
             // Add additional rows or content as needed
@@ -180,280 +184,12 @@ fun WeatherScreen(isDarkMode: Boolean, weatherState: String = "cloudy") {
     }
 }
 
-@Composable
-fun WeatherBox(isDarkMode: Boolean, weatherImageRes: Int, weatherState: String) {
-    val cardBackgroundColor = if (isDarkMode) Color(0xFF444444) else Color.White
-    val textColor = if (isDarkMode) Color.White else Color.Black
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp)
-            .clip(RoundedCornerShape(15.dp)) // Rounded corners with 15 dp
-            .background(cardBackgroundColor) // Dynamic background color
-            .padding(16.dp), // Padding inside the box
-        contentAlignment = Alignment.Center // Center content
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // First Column
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(), // Ensures the column uses the available width
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "75°F",
-                    color = textColor,
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Feels like:",
-                        color = textColor,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Normal,
-                        maxLines = 1,
-                        overflow = TextOverflow.Clip
-                    )
-                    Text(
-                        text = "22°C",
-                        color = textColor,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Clip
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_sunrise),
-                        contentDescription = "Sunrise Icon",
-                        tint = textColor,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column(horizontalAlignment = Alignment.Start) {
-                        Text(
-                            text = "Sunrise",
-                            color = textColor,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = "06:37 AM",
-                            color = textColor,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Normal,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_sunset),
-                        contentDescription = "Sunset Icon",
-                        tint = textColor,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column(horizontalAlignment = Alignment.Start) {
-                        Text(
-                            text = "Sunset",
-                            color = textColor,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = "20:37 PM",
-                            color = textColor,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Normal,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.width(15.dp))
-
-            // Second Column
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(id = weatherImageRes),
-                    contentDescription = "Weather State Image",
-                    modifier = Modifier
-                        .size(250.dp)
-                        .padding(bottom = 8.dp) // Reduced padding to bring text closer
-                )
-
-                Text(
-                    text = weatherState,
-                    color = textColor,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            Spacer(modifier = Modifier.width(10.dp))
-
-            // Third Column
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_humidity),
-                    contentDescription = "Humidity Icon",
-                    tint = if (isDarkMode) Color.LightGray else Color.Gray,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(bottom = 8.dp)
-                )
-                Text(
-                    text = "41%",
-                    color = textColor,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Humidity",
-                    color = textColor,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_pressure),
-                    contentDescription = "Pressure Icon",
-                    tint = if (isDarkMode) Color.LightGray else Color.Gray,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(bottom = 8.dp)
-                )
-                Text(
-                    text = "9975Pa",
-                    color = textColor,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Pressure",
-                    color = textColor,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal
-                )
-            }
-
-            Spacer(modifier = Modifier.width(10.dp))
-
-            // Fourth Column
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_wind_speed),
-                    contentDescription = "Wind Speed Icon",
-                    tint = if (isDarkMode) Color.LightGray else Color.Gray,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(bottom = 8.dp)
-                )
-                Text(
-                    text = "2km/h",
-                    color = textColor,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Wind Speed",
-                    color = textColor,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_uv),
-                    contentDescription = "UV Icon",
-                    tint = if (isDarkMode) Color.LightGray else Color.Gray,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(bottom = 8.dp)
-                )
-                Text(
-                    text = "8",
-                    color = textColor,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "UV",
-                    color = textColor,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal
-                )
-            }
-        }
-    }
-}
 
 
 @Preview(showBackground = true, widthDp = 800, heightDp = 400)
 @Composable
 fun LandscapeLayoutPreview() {
-    WeatherScreen(isDarkMode = true, weatherState = "rainy")
+    WeatherScreen(isDarkMode = true, weatherState = "rainy", onModeChange = {})
 }
 
