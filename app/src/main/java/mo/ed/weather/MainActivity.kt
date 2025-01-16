@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import mo.ed.weather.presentation.features.weather.screen.WeatherScreen
+import mo.ed.weather.presentation.ui.screen.WeatherScreen
 import mo.ed.weather.ui.theme.MyWeatherAppTheme
 
 class MainActivity : ComponentActivity() {

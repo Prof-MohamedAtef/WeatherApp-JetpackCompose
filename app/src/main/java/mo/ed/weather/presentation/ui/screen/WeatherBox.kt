@@ -1,4 +1,4 @@
-package mo.ed.weather.presentation.features.weather.screen
+package mo.ed.weather.presentation.ui.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
